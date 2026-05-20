@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To Do</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      padding: 48px 16px;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      padding: 32px;
+      width: 100%;
+      max-width: 480px;
+      height: fit-content;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #111;
+      margin-bottom: 24px;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1.5px solid #ddd;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input[type="text"]:focus { border-color: #555; }
+
+    button.add-btn {
+      padding: 10px 18px;
+      background: #111;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    button.add-btn:hover { background: #333; }
+
+    ul {
+      list-style: none;
+    }
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    li:last-child { border-bottom: none; }
+
+    li input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #111;
+      flex-shrink: 0;
+    }
+
+    li span {
+      flex: 1;
+      font-size: 0.95rem;
+      color: #222;
+      transition: color 0.15s;
+      word-break: break-word;
+    }
+
+    li.done span {
+      text-decoration: line-through;
+      color: #aaa;
+    }
+
+    button.del-btn {
+      background: none;
+      border: none;
+      color: #ccc;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px;
+      transition: color 0.15s;
+      flex-shrink: 0;
+    }
+
+    button.del-btn:hover { color: #e33; }
+
+    .empty {
+      text-align: center;
+      color: #bbb;
+      font-size: 0.9rem;
+      padding: 24px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>To Do</h1>
+    <div class="input-row">
+      <input type="text" id="new-item" placeholder="Add a task…" autocomplete="off">
+      <button class="add-btn" onclick="addItem()">Add</button>
+    </div>
+    <ul id="list"></ul>
+    <p class="empty" id="empty">No tasks yet.</p>
+  </div>
+
+  <script>
+    const input = document.getElementById('new-item');
+    const list  = document.getElementById('list');
+    const empty = document.getElementById('empty');
+
+    let items = JSON.parse(localStorage.getItem('todos') || '[]');
+    render();
+
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') addItem(); });
+
+    function save() {
+      localStorage.setItem('todos', JSON.stringify(items));
+    }
+
+    function render() {
+      list.innerHTML = '';
+      empty.style.display = items.length ? 'none' : 'block';
+      items.forEach((item, i) => {
+        const li = document.createElement('li');
+        if (item.done) li.classList.add('done');
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = item.done;
+        cb.onchange = () => toggle(i);
+
+        const span = document.createElement('span');
+        span.textContent = item.text;
+
+        const del = document.createElement('button');
+        del.className = 'del-btn';
+        del.textContent = '×';
+        del.onclick = () => remove(i);
+
+        li.append(cb, span, del);
+        list.appendChild(li);
+      });
+    }
+
+    function addItem() {
+      const text = input.value.trim();
+      if (!text) return;
+      items.push({ text, done: false });
+      input.value = '';
+      save();
+      render();
+    }
+
+    function toggle(i) {
+      items[i].done = !items[i].done;
+      save();
+      render();
+    }
+
+    function remove(i) {
+      items.splice(i, 1);
+      save();
+      render();
+    }
+  </script>
+</body>
+</html>
