@@ -164,6 +164,7 @@
         const del = document.createElement('button');
         del.className = 'del-btn';
         del.textContent = '×';
+        del.setAttribute('aria-label', 'Delete task');
         del.onclick = () => remove(i);
 
         li.append(cb, span, del);
